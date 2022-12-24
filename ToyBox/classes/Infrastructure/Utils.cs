@@ -36,8 +36,16 @@ namespace ToyBox {
             var toyboxFolder = ToyBoxUserPath;
             Directory.CreateDirectory(toyboxFolder);
             var path = Path.Combine(toyboxFolder, filename);
-            File.WriteAllText(path, JsonConvert.SerializeObject(obj, Formatting.Indented));
+
+            var serializer = Kingmaker.Blueprints.JsonSystem.Json.Serializer;
+            serializer.NullValueHandling = NullValueHandling.Include;
+            serializer.Formatting = Formatting.Indented;
+
+            using var sw = new StreamWriter(path);
+            using JsonWriter writer = new JsonTextWriter(sw);
+            serializer.Serialize(writer, obj);
         }
+
         public static T LoadFromFile<T>(string filename) {
             T obj = default;
             if (filename == null) filename = $"{obj.GetType().Name}.json";
